@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>오늘의 점심 메뉴 투표</title>
+    <!-- 고급스러운 Pretendard 폰트 적용 -->
+    <link rel="stylesheet" as="style" crossorigin
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            background: linear-gradient(135deg, #fffcf5, #fef2f2, #fffbeb);
+            color: #2d3748;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* 헤더 스타일 */
+        .main-header {
+            background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+            color: #ffffff;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.15);
+            z-index: 10;
+        }
+
+        .header-title {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: -0.03em;
+        }
+
+        .header-icon {
+            font-size: 26px;
+        }
+
+        .header-nav {
+            display: flex;
+            gap: 24px;
+        }
+
+        .nav-item {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .nav-item:hover {
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+        /* 본문 영역 */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+
+        .sections-container {
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+
+        /* 섹션 타이틀 */
+        .section-title {
+            font-size: 22px;
+            font-weight: 800;
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: #1a202c;
+            border-left: 4px solid #ff6b6b;
+            padding-left: 12px;
+            letter-spacing: -0.02em;
+        }
+
+        /* 카드 컨테이너 */
+        .vote-card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 20px;
+            width: 100%;
+        }
+
+        /* 음식 카드 */
+        .menu-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 24px;
+            padding: 24px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(255, 107, 107, 0.03);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .menu-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 35px rgba(255, 107, 107, 0.1);
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px solid rgba(255, 107, 107, 0.2);
+        }
+
+        .menu-emoji {
+            font-size: 48px;
+            margin-bottom: 12px;
+            transition: transform 0.3s ease;
+        }
+
+        .menu-card:hover .menu-emoji {
+            transform: scale(1.15) rotate(5deg);
+        }
+
+        .menu-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #2d3748;
+            margin: 0 0 8px 0;
+        }
+
+        .vote-count-badge {
+            background: #ffebe6;
+            color: #ff6b6b;
+            font-size: 14px;
+            font-weight: 700;
+            padding: 6px 14px;
+            border-radius: 50px;
+            margin-bottom: 16px;
+            transition: all 0.2s ease;
+        }
+
+        /* 프로그레스 바 */
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background: #edf2f7;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, #ff8e53, #ff6b6b);
+            width: 0%;
+            border-radius: 10px;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* 버튼 스타일 */
+        .btn-vote {
+            background: linear-gradient(135deg, #ff8e53, #ff6b6b);
+            color: #ffffff;
+            border: none;
+            padding: 10px 24px;
+            font-size: 14px;
+            font-weight: 700;
+            border-radius: 14px;
+            cursor: pointer;
+            width: 100%;
+            box-sizing: border-box;
+            box-shadow: 0 4px 10px rgba(255, 107, 107, 0.2);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .btn-vote:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 6px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .btn-vote:active {
+            transform: translateY(0) scale(1.02);
+            box-shadow: 0 3px 8px rgba(255, 107, 107, 0.15);
+        }
+
+        /* 메뉴 추가 폼 */
+        .add-menu-section {
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            padding: 24px 30px;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
+        }
+
+        .form-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .input-menu {
+            flex: 1;
+            padding: 12px 18px;
+            font-size: 15px;
+            font-family: inherit;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.8);
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .input-menu:focus {
+            border-color: #ff6b6b;
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.15);
+        }
+
+        .btn-add {
+            background: #2d3748;
+            color: #ffffff;
+            border: none;
+            padding: 12px 28px;
+            font-size: 15px;
+            font-weight: 700;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-add:hover {
+            background: #1a202c;
+            transform: translateY(-1px);
+        }
+
+        .btn-add:active {
+            transform: translateY(0);
+        }
+
+        /* 초기화 컨트롤 */
+        .control-panel {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: -10px;
+        }
+
+        .btn-reset {
+            background: transparent;
+            color: #718096;
+            border: 1px solid #cbd5e0;
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-reset:hover {
+            background: #fee2e2;
+            color: #ef4444;
+            border-color: #fca5a5;
+        }
+
+        /* 푸터 */
+        .main-footer {
+            background: #fdfbf7;
+            color: #a0aec0;
+            padding: 15px 20px;
+            text-align: center;
+            border-top: 1px solid #f7f4eb;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 10;
+        }
+
+        .main-footer p {
+            margin: 0;
+        }
+
+        /* 반응형 설정 */
+        @media (max-width: 768px) {
+            .main-header {
+                flex-direction: column;
+                gap: 16px;
+                padding: 20px;
+            }
+
+            .header-nav {
+                flex-direction: row;
+                justify-content: center;
+                gap: 24px;
+                width: 100%;
+            }
+
+            .sections-container {
+                gap: 30px;
+                padding: 10px;
+            }
+
+            .form-group {
+                flex-direction: column;
+            }
+
+            .btn-add {
+                width: 100%;
+            }
+
+            .section-title {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 상단 바 -->
+    <header class="main-header">
+        <h1 class="header-title">
+            <span class="header-icon">🍔</span>
+            오늘의 점심 메뉴 투표
+        </h1>
+        <nav class="header-nav">
+            <a href="#" class="nav-item">홈</a>
+            <a href="#" class="nav-item">랭킹</a>
+            <a href="#" class="nav-item">문의</a>
+        </nav>
+    </header>
+
+    <!-- 본문 내용 -->
+    <main class="main-content">
+        <div class="sections-container">
+            
+            <!-- 투표 섹션 -->
+            <section class="section-features">
+                <h2 class="section-title">선택지 투표하기</h2>
+                <div class="vote-card-grid" id="menu-container">
+                    <!-- 메뉴 카드들이 자바스크립트로 동적 렌더링됩니다 -->
+                </div>
+            </section>
+
+            <!-- 새 메뉴 추가 섹션 -->
+            <section class="add-menu-section">
+                <h2 class="section-title" style="border-left-color: #2d3748; margin-bottom: 10px;">원하는 메뉴 직접 추가</h2>
+                <p style="margin: 0; font-size: 14px; color: #718096;">먹고 싶은 메뉴가 목록에 없나요? 자유롭게 추가해서 투표를 유도해 보세요!</p>
+                <div class="form-group">
+                    <input type="text" class="input-menu" id="new-menu-name" placeholder="예: 돈까스, 초밥, 김치찌개..." maxlength="12">
+                    <button class="btn-add" id="add-menu-btn">메뉴 등록</button>
+                </div>
+            </section>
+
+            <!-- 컨트롤 패널 -->
+            <div class="control-panel">
+                <button class="btn-reset" id="reset-votes-btn">투표 데이터 초기화</button>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- 하단 푸터 -->
+    <footer class="main-footer">
+        <p>@2026 Lunch Vote Service</p>
+    </footer>
+
+    <!-- 로직 스크립트 -->
+    <script>
+        // 초기 기본 메뉴 데이터 (로컬 스토리지에 데이터가 없으면 사용)
+        const defaultMenus = [
+            { id: 1, name: '짜장면', emoji: '🍜', votes: 0 },
+            { id: 2, name: '치킨', emoji: '🍗', votes: 0 },
+            { id: 3, name: '피자', emoji: '🍕', votes: 0 },
+            { id: 4, name: '떡볶이', emoji: '🍡', votes: 0 }
+        ];
+
+        // 음식별 이모지 매핑 딕셔너리
+        const emojiMap = {
+            '짜장면': '🍜', '짬뽕': '🍜', '라면': '🍜', '국수': '🍜',
+            '치킨': '🍗', '닭갈비': '🍗', '삼계탕': '🍗',
+            '피자': '🍕',
+            '떡볶이': '🍡', '순대': '🍢', '튀김': '🍤',
+            '김치찌개': '🍲', '된장찌개': '🍲', '부대찌개': '🍲', '국밥': '🍲', '갈비탕': '🍲',
+            '돈까스': '🥩', '삼겹살': '🥩', '소고기': '🥩', '갈비': '🥩',
+            '초밥': '🍣', '회': '🐟',
+            '햄버거': '🍔', '샌드위치': '🥪', '핫도그': '🌭',
+            '파스타': '🍝', '스파게티': '🍝',
+            '카레': '🍛', '덮밥': '🍛', '비빔밥': '🍚', '볶음밥': '🍚'
+        };
+
+        // 적절한 이모지 가져오는 함수
+        function getEmoji(name) {
+            for (const key in emojiMap) {
+                if (name.includes(key)) {
+                    return emojiMap[key];
+                }
+            }
+            // 매칭되는 이모지가 없을 때 랜덤으로 귀여운 음식 관련 이모지 반환
+            const randomEmojis = ['🍱', '🥗', '🍲', '🍛', '🍙', '🍢', '🍳', '🍽️', '😋'];
+            return randomEmojis[Math.floor(Math.random() * randomEmojis.length)];
+        }
+
+        // 로컬 스토리지에서 메뉴 불러오기
+        let menus = JSON.parse(localStorage.getItem('lunch-menus'));
+        if (!menus || menus.length === 0) {
+            menus = defaultMenus;
+            saveToLocalStorage();
+        }
+
+        const menuContainer = document.getElementById('menu-container');
+        const addMenuBtn = document.getElementById('add-menu-btn');
+        const newMenuNameInput = document.getElementById('new-menu-name');
+        const resetVotesBtn = document.getElementById('reset-votes-btn');
+
+        // 로컬 스토리지 저장 함수
+        function saveToLocalStorage() {
+            localStorage.setItem('lunch-menus', JSON.stringify(menus));
+        }
+
+        // 전체 투표 수 계산
+        function getTotalVotes() {
+            return menus.reduce((acc, menu) => acc + menu.votes, 0);
+        }
+
+        // 메뉴 카드 그리기
+        function renderMenus() {
+            menuContainer.innerHTML = '';
+            const totalVotes = getTotalVotes();
+
+            // 투표 수에 따른 정렬 (내림차순)
+            const sortedMenus = [...menus].sort((a, b) => b.votes - a.votes);
+
+            sortedMenus.forEach(menu => {
+                const card = document.createElement('div');
+                card.className = 'menu-card';
+
+                // 투표율 계산
+                const percentage = totalVotes > 0 ? Math.round((menu.votes / totalVotes) * 100) : 0;
+
+                card.innerHTML = `
+                    <div class="menu-emoji">${menu.emoji}</div>
+                    <h3 class="menu-name">${menu.name}</h3>
+                    <div class="vote-count-badge">${menu.votes}표 (${percentage}%)</div>
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: ${percentage}%"></div>
+                    </div>
+                    <button class="btn-vote" onclick="voteForMenu(${menu.id})">👍 투표하기</button>
+                `;
+                menuContainer.appendChild(card);
+            });
+        }
+
+        // 투표 실행 함수
+        window.voteForMenu = function(id) {
+            const targetMenu = menus.find(m => m.id === id);
+            if (targetMenu) {
+                targetMenu.votes += 1;
+                saveToLocalStorage();
+                renderMenus();
+                
+                // 간단한 진동/클릭 시각 피드백 (이모지 팅김 애니메이션 유도)
+                const card = Array.from(document.querySelectorAll('.menu-card')).find(
+                    c => c.querySelector('.menu-name').textContent === targetMenu.name
+                );
+                if (card) {
+                    card.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        card.style.transform = '';
+                    }, 100);
+                }
+            }
+        };
+
+        // 메뉴 추가 기능
+        addMenuBtn.addEventListener('click', () => {
+            const menuName = newMenuNameInput.value.trim();
+
+            if (!menuName) {
+                alert('추가할 메뉴 이름을 입력해 주세요!');
+                return;
+            }
+
+            // 중복 검사
+            const isDuplicate = menus.some(m => m.name === menuName);
+            if (isDuplicate) {
+                alert('이미 목록에 존재하는 메뉴입니다!');
+                return;
+            }
+
+            const newId = menus.length > 0 ? Math.max(...menus.map(m => m.id)) + 1 : 1;
+            const emoji = getEmoji(menuName);
+
+            menus.push({
+                id: newId,
+                name: menuName,
+                emoji: emoji,
+                votes: 0
+            });
+
+            saveToLocalStorage();
+            renderMenus();
+            newMenuNameInput.value = '';
+        });
+
+        // 엔터 키로 메뉴 추가 가능하게
+        newMenuNameInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addMenuBtn.click();
+            }
+        });
+
+        // 투표 데이터 초기화
+        resetVotesBtn.addEventListener('click', () => {
+            if (confirm('모든 메뉴의 투표 기록을 초기화하시겠습니까? (추가된 메뉴는 유지됩니다)')) {
+                menus.forEach(m => m.votes = 0);
+                saveToLocalStorage();
+                renderMenus();
+            }
+        });
+
+        // 최초 실행 시 렌더링
+        renderMenus();
+    </script>
+</body>
+
+</html>
