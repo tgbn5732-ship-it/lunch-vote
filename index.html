@@ -446,8 +446,8 @@
             menuContainer.innerHTML = '';
             const totalVotes = getTotalVotes();
 
-            // 투표 수에 따른 정렬 (내림차순)
-            const sortedMenus = [...menus].sort((a, b) => b.votes - a.votes);
+            // 메뉴가 무작위로 움직이지 않도록 ID 순서대로 고정하여 정렬합니다.
+            const sortedMenus = [...menus].sort((a, b) => a.id - b.id);
 
             sortedMenus.forEach(menu => {
                 const card = document.createElement('div');
